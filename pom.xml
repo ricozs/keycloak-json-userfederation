@@ -14,9 +14,9 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-        <keycloak.version>15.0.2</keycloak.version>
+        <keycloak.version>21.1.1</keycloak.version>
         <version.slf4j>1.7.25</version.slf4j>
-        <testcontainers-keycloak.version>1.8.1</testcontainers-keycloak.version>
+        <testcontainers-keycloak.version>2.5.0</testcontainers-keycloak.version>
     </properties>
 
 
@@ -41,6 +41,26 @@
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-core</artifactId>
             <version>${keycloak.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-services</artifactId>
+            <version>${keycloak.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-model-legacy</artifactId>
+            <version>${keycloak.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-model-legacy-private</artifactId>
+            <version>${keycloak.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

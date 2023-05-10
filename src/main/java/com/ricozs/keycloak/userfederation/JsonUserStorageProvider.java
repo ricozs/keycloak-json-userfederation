@@ -3,14 +3,13 @@ package com.ricozs.keycloak.userfederation;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputValidator;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserCredentialModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.models.utils.ReadOnlyUserModelDelegate;
 import org.keycloak.storage.StorageId;
+import org.keycloak.storage.UserStoragePrivateUtil;
 import org.keycloak.storage.UserStorageProvider;
+import org.keycloak.storage.UserStorageUtil;
 import org.keycloak.storage.user.UserLookupProvider;
 
 public class JsonUserStorageProvider implements UserStorageProvider,
@@ -33,13 +32,13 @@ public class JsonUserStorageProvider implements UserStorageProvider,
     }
 
     @Override
-    public UserModel getUserById(String id, RealmModel realm) {
+    public UserModel getUserById(RealmModel realm, String id) {
         StorageId storageId = new StorageId(id);
-        return getUserByUsername(storageId.getExternalId(), realm);
+        return getUserByUsername(realm, storageId.getExternalId());
     }
 
     @Override
-    public UserModel getUserByUsername(String username, RealmModel realm) {
+    public UserModel getUserByUsername(RealmModel realm, String username) {
         User user = userRepository.findUserByUsername(username);
         if(user == null) {
             return null;
@@ -48,7 +47,7 @@ public class JsonUserStorageProvider implements UserStorageProvider,
     }
 
     @Override
-    public UserModel getUserByEmail(String email, RealmModel realm) {
+    public UserModel getUserByEmail(RealmModel realm, String email) {
         return null;
     }
 
@@ -74,16 +73,16 @@ public class JsonUserStorageProvider implements UserStorageProvider,
     private UserModel importUserFromJson(KeycloakSession session, RealmModel realm, User user) {
         UserModel imported = null;
 
-        UserModel existingLocalUser = session.userLocalStorage().getUserByUsername(realm, user.getUsername());
+        UserModel existingLocalUser = UserStoragePrivateUtil.userLocalStorage(session).getUserByUsername(realm, user.getUsername());
         if(existingLocalUser != null) {
             imported = existingLocalUser;
 
-            if (session.userCache() != null) {
-                session.userCache().evict(realm, existingLocalUser);
+            if (UserStorageUtil.userCache(session) != null) {
+                UserStorageUtil.userCache(session).evict(realm, existingLocalUser);
             }
         }
         else {
-            imported = session.userLocalStorage().addUser(realm, user.getUsername());
+            imported = UserStoragePrivateUtil.userLocalStorage(session).addUser(realm, user.getUsername());
             imported.setFederationLink(componentModel.getId());
         }
         //always enable
